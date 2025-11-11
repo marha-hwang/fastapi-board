@@ -1,5 +1,5 @@
 2. FastAPI로 Route, controller 만 이용해서 구현 후 Postman 요청에 응답하는 커뮤니티 백엔드를 구현해보세요 
-  ([커뮤니티](https://www.figma.com/file/uzVLRNRe4ocdIjr7xegIuf/%EA%B5%90%EC%9E%AC%EC%9A%A9-%EC%BB%A4%EB%AE%A4%EB%8B%88%ED%8B%B0-%EC%9B%B9?type=design&node-id=0%3A1&mode=design&t=7fImiK3c25slLqRw-1), 비밀번호 : start21)
+  ([커뮤니티](https://www.figma.com/file/uzVLRNRe4ocdIjr7xegIuf/%EA%B5%90%EC%9E%AC%EC%9A%A9-%EC%BB%A4%EB%AE%A4%EB%8B%88%ED%8B%B0-%EC%9B%B9?type=design&node-id=0%3A1&mode=design&t=7fImiK3c25slLqRw-1))
 
     2-1. 우선 route 만 이용해서 요청에 응답하는 백엔드를 구현한다.
     2-2. route/controller로 구분하여서 요청에 응답하는 백엔드를 구현한다.
