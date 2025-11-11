@@ -1,0 +1,24 @@
+[project]
+name = "fastapi-app"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "marha-hwang",email = "hwangharam@naver.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi (>=0.121.1,<0.122.0)",
+    "uvicorn (>=0.38.0,<0.39.0)",
+    "passlib (>=1.7.4,<2.0.0)",
+    "python-jose (>=3.5.0,<4.0.0)",
+    "python-multipart (>=0.0.20,<0.0.21)",
+    "pandas (>=2.3.3,<3.0.0)"
+]
+
+[tool.poetry]
+packages = [{include = "app"}]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
