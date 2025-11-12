@@ -17,6 +17,21 @@
 요구사항 정의
 https://docs.google.com/spreadsheets/d/1sFKSmkjUNMr6xyfy5WnViJ0tmjlPTwENiLvQ0qHtTZM/edit?gid=1878554884#gid=1878554884
 
+
+로그인 기능
+로그인 -> 토큰 발급 -> 요청마다 토큰을 포함하여 발송
+어떻게 포함시킴??
+- Depends(get_current_user)을 통해 토큰 검증
+- Depends(oauth2_scheme) : oauth2_scheme 
+  -  OAuth2PasswordBearer(tokenUrl="auth/login") : 클라이언트의 요청이 들어오면 토큰 값을 자동으로 추출하여 전달
+  - 스웨거에서 form을 사용하지 않고 구현하는 방법은?
+
 1. 프로젝트 구조 정의
 2. login, logout기능 구현
 3. 파일 + pandas를 통한 db구현
+
+4. 중간 코드 정리
+
+리팩토링 사항
+- 데이터 조회시 csv -> db로 변경 가능하도록 인터페이스 사용
+- Router생성시 인증로직을 모두 공통으로 처리하도록 변경
