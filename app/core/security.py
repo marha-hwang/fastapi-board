@@ -1,11 +1,7 @@
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
-from fastapi import Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-import app.model.user as model_user
-
 
 
 SECRET_KEY = "your-secret-key-here-change-in-production"

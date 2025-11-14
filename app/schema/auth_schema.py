@@ -1,11 +1,11 @@
 from pydantic import BaseModel
 
 
-class LoginRequest(BaseModel):
+class Login(BaseModel):
     user_id:str
     password:str
 
-class User(BaseModel):
+class UserInfo(BaseModel):
     user_id:str
     nickname:str
     img_id:str
@@ -13,4 +13,4 @@ class User(BaseModel):
 class LoginResponse(BaseModel):
     access_token : str
     token_type : str
-    user : User
+    user : UserInfo

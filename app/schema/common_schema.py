@@ -3,10 +3,6 @@ from typing import Generic, TypeVar, Optional
 
 T = TypeVar('T')
 
-class ApiRequest(BaseModel):
-    user_id:str
-
-
 class ApiResponse(BaseModel, Generic[T]):
     success:bool = Field(default=True, description="응답상태")
     message:str = Field(default=None, description="응답 메시지")

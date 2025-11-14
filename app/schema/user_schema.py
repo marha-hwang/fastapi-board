@@ -17,12 +17,10 @@ class UserDelete(BaseModel):
 # 3. Payload 3: 사용자 정보 수정 (비밀번호 제외)
 # user_id, nickname, img_id
 class UserUpdate(BaseModel):
-    user_id: str
     nickname: str
     img_id: str
 
 # 4. Payload 4: 비밀번호 변경
 # user_id, new_password
 class UserPasswordChange(BaseModel):
-    user_id: str
     new_password: str
