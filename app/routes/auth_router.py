@@ -4,6 +4,7 @@ import app.schema.common_schema as common_schema
 import app.schema.auth_schema as auth_schema
 import app.service.auth_service as auth_service
 import logging
+import app.core.exception as exception
 
 
 logger = logging.getLogger(__name__)
@@ -15,8 +16,7 @@ async def login(request: auth_schema.Login) -> Any:
 
     # 유저검증하여 토큰, 유저정보 반환
     result = auth_service.veryfy_user(input=request)
-
-    if result == None : return common_schema.ApiResponse(success=True, message="잘못된 로그인 정보입니다.")
+    if result == None : raise exception.AuthRequestException(code=exception.ErrorCode.NOT_AUTHENTICATED, message="로그인 정보가 올바르지 않습니다.")
     
     user, token = result
     logger.info(f"{user.__dict__}, {token}")
