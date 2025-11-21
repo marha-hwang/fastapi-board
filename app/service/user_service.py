@@ -5,9 +5,12 @@ import app.crud.user_crud as user_crud
 import logging
 import pandas as pd
 
+from sqlalchemy.orm import Session
+
+
 logger = logging.getLogger(__name__)
 
-def create_user(input: user_schema.UserCreate)->str :
+def create_user(input: user_schema.UserCreate, db:Session)->str :
 
     if user_crud.select_user(user_id=input.user_id) != None : return "이미 등록된 사용자입니다."
 
@@ -19,7 +22,7 @@ def create_user(input: user_schema.UserCreate)->str :
         img_id=input.img_id
     )
     
-    if user_crud.insert_user(user=user) : return "회원가입이 성공적으로 완료되었습니다."
+    if user_crud.insert_user(user=user, db=db) : return "회원가입이 성공적으로 완료되었습니다."
     else : return "회원가입에 실패하였습니다."
 
 def remove_user(user_id:str)->str :

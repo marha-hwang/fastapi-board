@@ -1,10 +1,22 @@
 from pydantic import BaseModel
 
-class User(BaseModel) : 
-    user_id : str
-    password : str
-    nickname : str
-    img_id : str
+from sqlalchemy import Column, Integer, String, DateTime, Text
+from sqlalchemy.sql import func
+from app.core.database import Base
+
+class User(Base):
+    __tablename__ = "User"
+    
+    user_id = Column(String(100), primary_key=True, index=True)
+    password = Column(String(100))
+    nickname = Column(String(100))
+    img_id = Column(String(100))
+
+# class User(BaseModel) : 
+#     user_id : str
+#     password : str
+#     nickname : str
+#     img_id : str
 
 class Post(BaseModel) : 
     post_id : str

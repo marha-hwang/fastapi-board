@@ -4,6 +4,7 @@ import logging
 import app.config as config
 import app.model.models as models
 
+from sqlalchemy.orm import Session
 
 
 BASE_DIR = config.db_path
@@ -28,16 +29,21 @@ def select_user(user_id:str)->models.User:
                  img_id= df['img_id'].iloc[0]
             )
 
-def insert_user(user: models.User)->bool :
+def insert_user(user: models.User, db: Session)->bool :
         
-    user_dict = [user.model_dump()]
-    df = pd.DataFrame(user_dict)
-    logger.info(f"{user_dict}")
+     # 새 사용자 생성
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    # user_dict = [user.model_dump()]
+    # df = pd.DataFrame(user_dict)
+    # logger.info(f"{user_dict}")
     
-    # 2-A. 파일이 없으면: 헤더와 함께 새로 쓰기
-    if not os.path.exists(USER_DATA_FILE): df.to_csv(USER_DATA_FILE, index=False, encoding='utf-8-sig')    
-    # 2-B. 파일이 있으면: 헤더 없이(header=False), 추가 모드(mode='a')로 저장
-    else : df.to_csv(USER_DATA_FILE, mode='a', header=False, index=False, encoding='utf-8-sig')
+    # # 2-A. 파일이 없으면: 헤더와 함께 새로 쓰기
+    # if not os.path.exists(USER_DATA_FILE): df.to_csv(USER_DATA_FILE, index=False, encoding='utf-8-sig')    
+    # # 2-B. 파일이 있으면: 헤더 없이(header=False), 추가 모드(mode='a')로 저장
+    # else : df.to_csv(USER_DATA_FILE, mode='a', header=False, index=False, encoding='utf-8-sig')
 
     return True
 
