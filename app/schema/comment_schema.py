@@ -21,7 +21,7 @@ class Comment(BaseModel):
     comment_id:str
     content: str
     user_id:str
-    profile_id:str
+    profile_id:str|None = None
     create_time:str
 
 class CommentListRes(BaseModel):

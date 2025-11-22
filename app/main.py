@@ -6,7 +6,7 @@ import logging
 from fastapi.exceptions import RequestValidationError
 import app.schema.common_schema as common_schema
 from fastapi.responses import JSONResponse
-import app.core.exception as custom_exception
+from app.core.exception import CustomException, ErrorCode
 
 app = FastAPI(title="FastAPI + Poetry AI Server")
 
@@ -23,7 +23,7 @@ async def default_exception_handler(request: Request, exc: Exception):
     print(f"🚨 500 Internal Server Error: {error_msg}")
 
     response = common_schema.ApiResponse(success=False, 
-                                         code=custom_exception.ErrorCode.INTERNAL_SERVER_ERROR, 
+                                         code=ErrorCode.INTERNAL_SERVER_ERROR, 
                                          message="서버 내부 오류가 발생했습니다.")
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -33,27 +33,29 @@ async def default_exception_handler(request: Request, exc: Exception):
 # 요청데이터가 pydantic검증에 실패하는 경우
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    
+    print(str(exc.errors))
+    error_msg = str(exc)
+    print(f" Error: {error_msg}")
     for error in exc.errors():
         msg = error["msg"].replace("Value error, ", "")
 
     response = common_schema.ApiResponse(success=False, 
-                                         code=custom_exception.ErrorCode.INVALID_INPUT_VALUE, 
+                                         code=ErrorCode.INVALID_INPUT_VALUE, 
                                          message=msg)
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
         content=response.model_dump()
     )
 
-# 로그인 정보가 올바르지 않은 경우
-@app.exception_handler(custom_exception.AuthRequestException)
-async def auth_exception_handler(request: Request, exc: custom_exception.AuthRequestException):
-
+@app.exception_handler(CustomException)
+async def custom_exception_handler(request: Request, exc: CustomException):
+    error_msg = str(exc)
+    print(f" Error: {error_msg}")
     response = common_schema.ApiResponse(success=False, 
                                          code=exc.code, 
                                          message=exc.message)
     return JSONResponse(
-        status_code=status.HTTP_401_UNAUTHORIZED,
+        status_code=status.HTTP_404_NOT_FOUND,
         content=response.model_dump()
     )
 

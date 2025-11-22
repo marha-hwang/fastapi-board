@@ -1,56 +1,67 @@
 import app.schema.user_schema as user_schema
 import app.model.models as app_models
 import app.core.security as security
-import app.crud.user_crud as user_crud
+from app.repository.base_user_repository import BaseUserRepository
 import logging
-import pandas as pd
-
-from sqlalchemy.orm import Session
-
+from app.core.exception import CustomException, ErrorCode
 
 logger = logging.getLogger(__name__)
 
-def create_user(input: user_schema.UserCreate, db:Session)->str :
+def create_user(repo:BaseUserRepository, data:user_schema.UserCreate) :
+    if repo.select_user(user_id=data.user_id) != None : 
+        raise CustomException(code=ErrorCode.INVALID_INPUT_VALUE, message="이미 등록된 사용자입니다.")
 
-    if user_crud.select_user(user_id=input.user_id) != None : return "이미 등록된 사용자입니다."
-
-    hashedPassword = security.get_password_hash(input.password)
+    hashedPassword = security.get_password_hash(data.password)
     user = app_models.User(
-        user_id=input.user_id,
+        user_id=data.user_id,
         password=hashedPassword,
-        nickname=input.nickname,
-        img_id=input.img_id
+        nickname=data.nickname,
+        img_id=data.img_id
     )
+    try :
+        repo.insert_user(user)
+    except Exception as e:
+        logger.error("error", exc_info=True)
+        raise CustomException(code=ErrorCode.INVALID_INPUT_VALUE, message="회원가입에 실패하였습니다.")
+
+def remove_user(repo:BaseUserRepository, user_id:str) :
+    if repo.select_user(user_id) == None :
+        raise CustomException(code=ErrorCode.INVALID_INPUT_VALUE, message="등록되지 않은 사용자입니다.")
+
+    try :
+        repo.delete_user(user_id)
+    except Exception as e:
+        logger.error("error", exc_info=True)
+        raise CustomException(code=ErrorCode.INVALID_INPUT_VALUE, message="회원삭제에 실패하였습니다.")
+
+def update_user(repo:BaseUserRepository, data:user_schema.UserUpdate, user_id:str) :
     
-    if user_crud.insert_user(user=user, db=db) : return "회원가입이 성공적으로 완료되었습니다."
-    else : return "회원가입에 실패하였습니다."
-
-def remove_user(user_id:str)->str :
-    if user_crud.select_user(user_id=user_id) == None : return "등록되지 않은 사용자입니다."
-
-    if user_crud.delete_user(user_id=user_id) : return "회원 삭제가 성공적으로 완료되었습니다."
-    else : return "회원삭제에 실패하였습니다."
-
-def update_user(input:user_schema.UserUpdate, user_id:str)->str :
+    if repo.select_user(user_id) == None :
+        raise CustomException(code=ErrorCode.INVALID_INPUT_VALUE, message="등록되지 않은 사용자입니다.")
     
-    if user_crud.select_user(user_id=user_id) == None : "등록되지 않은 사용자입니다."
-
     user = app_models.User(
         user_id=user_id,
         password="",
-        nickname=input.nickname,
-        img_id=input.img_id
+        nickname=data.nickname,
+        img_id=data.img_id
     )
 
-    if user_crud.update_user(user=user) : return "회원 업데이트가 성공적으로 완료되었습니다."
-    else : return "회원 업데이트에 실패하였습니다."
+    try :
+        repo.update_user(user)
+    except Exception as e:
+        logger.error("error", exc_info=True)
+        raise CustomException(code=ErrorCode.INVALID_INPUT_VALUE, message="회원 업데이트에 실패하였습니다.")
 
+def update_password(repo:BaseUserRepository, data:user_schema.UserPasswordChange, user_id:str) :
 
-def update_password(input:user_schema.UserPasswordChange, user_id:str)->str :
+    if repo.select_user(user_id) == None : 
+        raise CustomException(code=ErrorCode.INVALID_INPUT_VALUE, message="등록되지 않은 사용자입니다.")
 
-    if user_crud.select_user(user_id=user_id) == None : "등록되지 않은 사용자입니다."
-
-    hashedPassword = security.get_password_hash(input.new_password)
-    if user_crud.update_password(new_password=hashedPassword, user_id=user_id) : return "비밀번호 업데이트가 성공적으로 완료되었습니다."
-    else : return "비밀번호 업데이트에 실패하였습니다."
+    hashedPassword = security.get_password_hash(data.new_password)
+   
+    try :
+        repo.update_password(hashedPassword, user_id)
+    except Exception as e:
+        logger.error("error", exc_info=True)
+        raise CustomException(code=ErrorCode.INVALID_INPUT_VALUE, message="비밀번호 업데이트에 실패하였습니다.")
 

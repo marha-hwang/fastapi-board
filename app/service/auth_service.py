@@ -1,26 +1,25 @@
 import app.schema.auth_schema as auth_schema
 import app.model.models as models
 import app.core.security as security
-import app.crud.user_crud as user_crud
+from app.repository.base_user_repository import BaseUserRepository
 import logging
-import pandas as pd
+from app.core.exception import CustomException, ErrorCode
 
 logger = logging.getLogger(__name__)
 
-def veryfy_user(input: auth_schema.Login)->tuple[auth_schema.UserInfo, str]:
+def veryfy_user(repo:BaseUserRepository, data: auth_schema.Login)->tuple[auth_schema.UserInfo, str]:
 
-    # 회원존재 검증
-    user:models.User = user_crud.select_user(user_id=input.user_id)
-    if user == None : return None
-
-    logger.info("회원존재")
+    user = repo.select_user(data.user_id)
+    if user == None :
+        raise CustomException(code=ErrorCode.INVALID_INPUT_VALUE, message="로그인 정보가 올바르지 않습니다.")
 
     # 회원비밀번호 검증
-    if not security.verify_password(input.password, user.password) : return None
+    if not security.verify_password(data.password, user.password) : 
+        raise CustomException(code=ErrorCode.NOT_AUTHENTICATED, message="로그인 정보가 올바르지 않습니다.")
+
 
     # jwt토큰 발급
-    jwt = security.create_access_token(data=user.__dict__)
-    logger.info(jwt)
+    jwt = security.create_access_token(data={col.name: getattr(user, col.name) for col in user.__table__.columns})
 
     userInfo = auth_schema.UserInfo(
         user_id=user.user_id,

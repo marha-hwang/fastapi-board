@@ -27,7 +27,7 @@ class ErrorCode(str, Enum):
 # 커스텀 Exception정의
 # 서버 내부에서 잘못된 응답인경우 raise 커스텀Exception
 # main라우터에서 에러응답 전역처리
-class AuthRequestException(Exception):
+class CustomException(Exception):
     def __init__(
         self, 
         code: ErrorCode, 

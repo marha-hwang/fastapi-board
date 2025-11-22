@@ -32,7 +32,7 @@ class PostList(BaseModel):
     post_id:str
     title: str
     user_id:str
-    profile_id:str
+    profile_id:str | None = None
     like_cnt:int
     comment_cnt:int
     view_cnt:int
@@ -47,7 +47,7 @@ class PostDetailRes(BaseModel):
     title: str
     content: str
     user_id:str
-    profile_id:str
+    profile_id:str | None = None
     img_id:str
     like_cnt:int
     comment_cnt:int

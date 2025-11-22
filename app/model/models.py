@@ -1,43 +1,47 @@
-from pydantic import BaseModel
+from sqlalchemy import Column, Integer, String, Text, DateTime
+from sqlalchemy.orm import DeclarativeBase
+from datetime import datetime
 
-from sqlalchemy import Column, Integer, String, DateTime, Text
-from sqlalchemy.sql import func
-from app.core.database import Base
+class Base(DeclarativeBase):
+    pass
 
+# --- File 테이블 ---
+class File(Base):
+    __tablename__ = "File"
+    img_id = Column(String(50), primary_key=True) # 기본 키만 유지
+    img_url = Column(String(255), nullable=False)
+
+# --- User 테이블 ---
 class User(Base):
     __tablename__ = "User"
-    
-    user_id = Column(String(100), primary_key=True, index=True)
-    password = Column(String(100))
-    nickname = Column(String(100))
-    img_id = Column(String(100))
+    user_id = Column(String(50), primary_key=True)
+    password = Column(String(255), nullable=False)
+    nickname = Column(String(100), nullable=False) # UNIQUE 제약조건 제거
+    img_id = Column(String(50)) # 외래키 정보 제거
 
-# class User(BaseModel) : 
-#     user_id : str
-#     password : str
-#     nickname : str
-#     img_id : str
+# --- Post 테이블 ---
+class Post(Base):
+    __tablename__ = "Post"
+    post_id = Column(String(50), primary_key=True)
+    user_id = Column(String(50), nullable=False) # 외래키 정보 제거
+    title = Column(String(255), nullable=False)
+    content = Column(Text, nullable=False)
+    img_id = Column(String(50)) # 외래키 정보 제거
+    view_cnt = Column(Integer, nullable=False, default=0)
+    create_time = Column(DateTime, nullable=False, default=datetime.utcnow) 
 
-class Post(BaseModel) : 
-    post_id : str
-    user_id : str
-    title : str
-    content : str
-    img_id : str
-    view_cnt : int
-    create_time : str
+# --- Comment 테이블 ---
+class Comment(Base):
+    __tablename__ = "Comment"
+    comment_id = Column(String(50), primary_key=True)
+    post_id = Column(String(50), nullable=False) # 외래키 정보 제거
+    user_id = Column(String(50), nullable=False) # 외래키 정보 제거
+    content = Column(Text, nullable=False)
+    create_time = Column(DateTime, nullable=False, default=datetime.utcnow)
 
-class Comment(BaseModel) : 
-    comment_id : str
-    post_id : str
-    user_id : str
-    content : str
-    create_time : str
-
-class Like(BaseModel) : 
-    user_id : str
-    post_id : str
-
-class File(BaseModel) : 
-    img_id : str
-    img_url : str
+# --- PostLike 테이블 ---
+class PostLike(Base):
+    __tablename__ = "PostLike"
+    # 복합키 제약조건 및 외래키 정보 모두 제거
+    user_id = Column(String(50), primary_key=True) # PK를 user_id에 임시 설정 (ORM 매핑을 위해 필요)
+    post_id = Column(String(50), nullable=False)
