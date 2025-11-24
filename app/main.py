@@ -1,12 +1,14 @@
 from fastapi import FastAPI, Request, status
 from .config import server_config
 from fastapi import APIRouter
-from app.routes import auth_router, user_router, post_router, comment_router
+from app.routes import auth_router, user_router, post_router, comment_router, file_router
 import logging
 from fastapi.exceptions import RequestValidationError
 import app.schema.common_schema as common_schema
 from fastapi.responses import JSONResponse
 from app.core.exception import CustomException, ErrorCode
+import os
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(title="FastAPI + Poetry AI Server")
 
@@ -15,6 +17,15 @@ logging.basicConfig(
     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S"
 )
+
+
+# 1. 실제 이미지가 저장된 폴더 이름
+UPLOAD_DIR = "images"
+# (폴더가 없으면 에러나니까 안전하게 생성)
+if not os.path.exists(UPLOAD_DIR):
+    os.makedirs(UPLOAD_DIR)
+# 2. mount 설정 (핵심 코드)
+app.mount("/images", StaticFiles(directory=UPLOAD_DIR), name="images")
 
 # 기본 에러처리
 @app.exception_handler(Exception)
@@ -59,8 +70,6 @@ async def custom_exception_handler(request: Request, exc: CustomException):
         content=response.model_dump()
     )
 
-
-
 @app.get("/")
 async def root():
     return {"message": "AI Model Server is running 🚀"}
@@ -70,6 +79,6 @@ api_router.include_router(router=auth_router.router)
 api_router.include_router(router=user_router.router)
 api_router.include_router(router=post_router.router)
 api_router.include_router(router=comment_router.router)
-
+api_router.include_router(router=file_router.router)
 
 app.include_router(api_router)
