@@ -9,6 +9,9 @@ from fastapi.responses import JSONResponse
 from app.core.exception import CustomException, ErrorCode
 import os
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
+from openai import AsyncOpenAI
 
 app = FastAPI(title="FastAPI + Poetry AI Server")
 
@@ -73,6 +76,47 @@ async def custom_exception_handler(request: Request, exc: CustomException):
 @app.get("/")
 async def root():
     return {"message": "AI Model Server is running 🚀"}
+
+################################### llm모델 api ###################################
+# 1. vLLM 서버 연결 설정
+public_url = "https://unresumed-maya-hyperaccurately.ngrok-free.dev"
+model_name = "Qwen/Qwen2.5-32B-Instruct-AWQ"
+
+VLLM_API_URL = f"{public_url}/v1" 
+client = AsyncOpenAI(base_url=VLLM_API_URL, api_key="EMPTY")
+
+class ChatRequest(BaseModel):
+    message: str = "애국가 가사를 알려줘"
+    model: str = model_name
+
+# 2. 스트림 제너레이터 함수 (핵심)
+async def stream_generator(prompt: str, model: str):
+    # vLLM에 요청 (stream=True 필수!)
+    stream = await client.chat.completions.create(
+        model=model,
+        messages=[{"role": "user", "content": prompt}],
+        stream=True,  # <--- 이게 켜져 있어야 vLLM이 한 글자씩 줍니다.
+        temperature=0.7
+    )
+
+    # vLLM에서 오는 조각(chunk)을 받자마자 yield로 던짐
+    async for chunk in stream:
+        content = chunk.choices[0].delta.content
+        if content:
+            # 그대로 텍스트만 보낼 수도 있고, SSE 포맷으로 보낼 수도 있음
+            yield content 
+
+@app.post("/chat/stream")
+async def chat_stream(request: ChatRequest):
+    # 3. StreamingResponse로 감싸서 반환
+    return StreamingResponse(
+        stream_generator(request.message, request.model),
+        media_type="text/event-stream"  # 스트리밍 표준 MIME 타입
+    )
+
+######################################################################
+
+
 
 api_router = APIRouter()
 api_router.include_router(router=auth_router.router)
