@@ -17,14 +17,14 @@ def veryfy_user(repo:BaseUserRepository, data: auth_schema.Login)->tuple[auth_sc
     if not security.verify_password(data.password, user.password) : 
         raise CustomException(code=ErrorCode.NOT_AUTHENTICATED, message="로그인 정보가 올바르지 않습니다.")
 
-
     # jwt토큰 발급
     jwt = security.create_access_token(data={col.name: getattr(user, col.name) for col in user.__table__.columns})
 
+    logger.info(f"{user.img_id} / {user.nickname}")
     userInfo = auth_schema.UserInfo(
         user_id=user.user_id,
         nickname=user.nickname,
-        img_id=user.img_id
+        img_id=user.img_id if user.img_id != None else ""
     )
 
     return (userInfo, jwt)

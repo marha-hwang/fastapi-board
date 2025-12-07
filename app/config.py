@@ -9,5 +9,5 @@ with open(CONFIG_PATH, "rb") as f:
 server_config = config["server"]
 model_config = config["model"]
 
-db_type = "database" # csv or database
+db_type = "csv" # csv or database
 csv_data_path = Path(__file__).parent.parent / "temp_table"

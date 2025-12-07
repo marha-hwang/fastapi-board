@@ -66,6 +66,9 @@ def update_comment(repo:BaseCommentRepository ,data:comment_schema.CommentUpdate
 def get_comment_list(user_repo:BaseUserRepository, comment_repo:BaseCommentRepository, post_id:str)->comment_schema.CommentListRes :
 
     comment_list:list[models.Comment] = comment_repo.select_comment_list(post_id)
+    if comment_list == None or len(comment_list) == 0 :
+        return comment_schema.CommentListRes(comments=[])
+
     comment_res = []
     for comment in comment_list:
         user = user_repo.select_user(comment.user_id)
@@ -75,7 +78,7 @@ def get_comment_list(user_repo:BaseUserRepository, comment_repo:BaseCommentRepos
                 comment_id=comment.comment_id,
                 content=comment.content,
                 user_id=comment.user_id,
-                profile_id=profile_id,
+                profile_id=profile_id if profile_id != None else "",
                 create_time=str(comment.create_time)
             )
         )

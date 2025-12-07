@@ -22,7 +22,7 @@ def get_file_repository(db:Session = Depends(get_db)):
         return FileRepositoryCSV()
 
 @router.post("/upload", response_model=common_schema.ApiResponse)
-async def upload_file(request: UploadFile, current_user: str = Depends(get_current_user), repo:BaseFileRepository = Depends(get_file_repository)) -> Any:
+async def upload_file(request: UploadFile, repo:BaseFileRepository = Depends(get_file_repository)) -> Any:
 
     result = await file_service.upload_file(repo, request)
     response = common_schema.ApiResponse(success=True,

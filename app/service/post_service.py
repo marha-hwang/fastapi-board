@@ -109,8 +109,8 @@ def get_post_list(post_repo:BasePostRepository,
             title=post.title,
             content=post.content,
             user_id=post.user_id,
-            profile_id=profile_id,
-            img_id=post.img_id,
+            profile_id=profile_id if profile_id != None else "",
+            img_id=post.img_id if post.img_id != None else "",
             like_cnt=like_cnt,
             comment_cnt=comment_cnt,
             view_cnt=post.view_cnt,
@@ -118,7 +118,8 @@ def get_post_list(post_repo:BasePostRepository,
             like_YN=like_yn
         )
         post_list.append(p)
-    result = post_schema.PostListRes(posts=post_list)
+    sorted_post_list = sorted(post_list, key=lambda x: x.create_time, reverse=True)
+    result = post_schema.PostListRes(posts=sorted_post_list)
     return result
 
 def get_post_detail(post_repo:BasePostRepository,
@@ -146,8 +147,8 @@ def get_post_detail(post_repo:BasePostRepository,
         title=post_detail.title,
         content=post_detail.content,
         user_id=post_detail.user_id,
-        profile_id=profile_id,
-        img_id=post_detail.img_id,
+        profile_id=profile_id if profile_id != None else "",
+        img_id=str(post_detail.img_id) if str(post_detail.img_id) != None else "",
         like_cnt=like_cnt,
         comment_cnt=comment_cnt,
         view_cnt=post_detail.view_cnt,
